@@ -1,27 +1,38 @@
-# Dozzle Helm Chart
+# arizzi-charts Helm Repository
 
-This repository provides a Helm chart for deploying [Dozzle](https://github.com/amir20/dozzle), a simple, real-time log viewer for Docker.
+This repository contains Helm charts for various applications.
 
-## Quick Start
+## Usage
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd <repository-directory>
-   ```
+### Add the Helm Repository
 
-2. **Check and edit configuration:**
-   
-   Open `values.yml` and review the configuration values. Change any parameters as required for your deployment.
+To add the `arizzi-charts` Helm repository to your local Helm client, run the following commands. The URL should be the one where your Helm repository is hosted (e.g., using GitHub Pages).
 
-3. **Install Dozzle with Helm:**
-   ```bash
-   helm install -n dozzle --create-namespace dozzle dozzle -f values.yml
-   ```
+```bash
+helm repo add arizzi-charts https://arizzi.github.io/arizzi-charts/
+helm repo update
+```
 
-   - This will install Dozzle in the `dozzle` namespace using your customized `values.yml`.
+### Install a Chart
 
-## Help
-- For issues or questions regarding this Helm chart, please open an issue in this repository.
-- For help with Dozzle operation, visit the official [Dozzle GitHub repository](https://github.com/amir20/dozzle).
+You can search for available charts in the repository:
 
+```bash
+helm search repo arizzi-charts
+```
+
+To install a chart, for example the `dozzle` chart, run the following command:
+
+```bash
+helm install my-release arizzi-charts/dozzle
+```
+
+This will deploy Dozzle on your Kubernetes cluster with the default configuration. For detailed configuration options, please refer to the `values.yaml` file within the `dozzle` chart.
+
+## Charts
+
+The following charts are available in this repository:
+
+| Chart | Description |
+|---|---|
+| dozzle | A small lightweight application with a web-based interface to monitor Docker logs in real-time. |
