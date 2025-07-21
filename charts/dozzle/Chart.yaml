@@ -3,5 +3,5 @@ name: dozzle
 description: A Helm chart for Dozzle, a lightweight real-time log viewer for containers.
 type: application
 version: 0.1.0.2
-appVersion: "latest"
+appVersion: latest
 icon: https://dozzle.dev/logo.svg
