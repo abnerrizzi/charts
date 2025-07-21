@@ -1,7 +1,10 @@
+name: Helm Chart
+
 on:
   push:
     branches:
       - main
+      - feat/**
   workflow_dispatch:
 jobs:
   release:
@@ -22,6 +25,6 @@ jobs:
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         with:
-          charts_dir: .
+          charts_dir: charts/
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
