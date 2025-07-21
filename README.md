@@ -24,3 +24,4 @@ This repository provides a Helm chart for deploying [Dozzle](https://github.com/
 ## Help
 - For issues or questions regarding this Helm chart, please open an issue in this repository.
 - For help with Dozzle operation, visit the official [Dozzle GitHub repository](https://github.com/amir20/dozzle).
+
