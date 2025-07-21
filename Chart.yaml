@@ -4,4 +4,4 @@ description: A Helm chart for Dozzle, a lightweight real-time log viewer for con
 type: application
 version: 0.1.0
 appVersion: "latest"
-icon: https://dozzle.dev/images/logo.svg
+icon: https://dozzle.dev/logo.svg
