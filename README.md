@@ -9,7 +9,7 @@ This repository contains Helm charts for various applications.
 To add the `arizzi-charts` Helm repository to your local Helm client, run the following commands. The URL should be the one where your Helm repository is hosted (e.g., using GitHub Pages).
 
 ```bash
-helm repo add arizzi-charts https://arizzi.github.io/arizzi-charts/
+helm repo add arizzi-charts https://arizzi.github.io/charts/
 helm repo update
 ```
 
