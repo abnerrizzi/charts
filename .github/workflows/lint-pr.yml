@@ -5,7 +5,7 @@ on:
     types:
       - opened
       - edited
-      - synchronize
+      # - synchronize
 
 permissions:
   pull-requests: read
