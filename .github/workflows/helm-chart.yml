@@ -1,3 +1,5 @@
+name: Helm Chart
+
 on:
   push:
     branches:
