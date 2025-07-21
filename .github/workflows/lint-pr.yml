@@ -7,7 +7,7 @@ on:
       - edited
       - synchronize
     branches:
-      - 'xfeature/*'
+      - 'feature/*'
 
 permissions:
   pull-requests: read
