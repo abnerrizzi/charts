@@ -6,8 +6,6 @@ on:
       - opened
       - edited
       - synchronize
-    branches:
-      - 'feature/*'
 
 permissions:
   pull-requests: read
