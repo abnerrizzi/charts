@@ -2,6 +2,6 @@ apiVersion: v2
 name: dozzle
 description: A Helm chart for Dozzle, a lightweight real-time log viewer for containers.
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: v8.13.7
 icon: https://dozzle.dev/logo.svg
