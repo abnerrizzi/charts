@@ -3,6 +3,17 @@ entries:
   dozzle:
   - apiVersion: v2
     appVersion: v8.13.7
+    created: "2025-07-23T20:33:16.949827704Z"
+    description: A Helm chart for Dozzle, a lightweight real-time log viewer for containers.
+    digest: 25f9eb7e751eca86a68526e72724f88d7283d836592902971ead5cc82f8a52e9
+    icon: https://dozzle.dev/logo.svg
+    name: dozzle
+    type: application
+    urls:
+    - https://github.com/abnerrizzi/charts/releases/download/dozzle-0.1.3/dozzle-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: v8.13.7
     created: "2025-07-21T23:23:38.704808943Z"
     description: A Helm chart for Dozzle, a lightweight real-time log viewer for containers.
     digest: 4d754917655e63bc178d3d2a73884c7edbb4027672f25c3efcb057a8a34a8c55
@@ -34,4 +45,4 @@ entries:
     urls:
     - https://github.com/abnerrizzi/charts/releases/download/dozzle-0.1.0/dozzle-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-21T23:23:38.704820335Z"
+generated: "2025-07-23T20:33:16.949846519Z"
