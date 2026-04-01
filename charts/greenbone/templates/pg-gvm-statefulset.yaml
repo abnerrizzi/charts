@@ -1,0 +1,37 @@
+{{- if .Values.pgGvm.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "greenbone.fullname" . }}-pg-gvm
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "greenbone.fullname" . }}-pg-gvm
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: pg-gvm
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: pg-gvm
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      containers:
+        - name: pg-gvm
+          image: {{ include "greenbone.image" (dict "repository" .Values.pgGvm.image.repository "tag" .Values.pgGvm.image.tag "Chart" .Chart "Values" .Values) }}
+          volumeMounts:
+            {{- range .Values.pgGvm.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.pgGvm.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+        {{- end }}
+{{- end }}

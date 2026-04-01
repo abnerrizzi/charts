@@ -1,0 +1,37 @@
+{{- if .Values.redisServer.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "greenbone.fullname" . }}-redis-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "greenbone.fullname" . }}-redis-server
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis-server
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis-server
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      containers:
+        - name: redis-server
+          image: {{ include "greenbone.image" (dict "repository" .Values.redisServer.image.repository "tag" .Values.redisServer.image.tag "Chart" .Chart "Values" .Values) }}
+          volumeMounts:
+            {{- range .Values.redisServer.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.redisServer.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+        {{- end }}
+{{- end }}

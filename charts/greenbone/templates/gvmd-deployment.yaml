@@ -1,0 +1,36 @@
+{{- if .Values.gvmd.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greenbone.fullname" . }}-gvmd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: gvmd
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: gvmd
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      containers:
+        - name: gvmd
+          image: {{ include "greenbone.image" (dict "repository" .Values.gvmd.image.repository "tag" .Values.gvmd.image.tag "Chart" .Chart "Values" .Values) }}
+          volumeMounts:
+            {{- range .Values.gvmd.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.gvmd.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+        {{- end }}
+{{- end }}

@@ -1,0 +1,42 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greenbone.fullname" . }}-nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: nginx
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: nginx
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      containers:
+        - name: nginx
+          image: {{ include "greenbone.image" (dict "repository" .Values.nginx.image.repository "tag" .Values.nginx.image.tag "Chart" .Chart "Values" .Values) }}
+          ports:
+            {{- range .Values.nginx.ports }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            {{- range .Values.nginx.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.nginx.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+        {{- end }}
+{{- end }}

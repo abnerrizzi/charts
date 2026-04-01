@@ -1,0 +1,37 @@
+{{- if .Values.openvas.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greenbone.fullname" . }}-openvas
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: openvas
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: openvas
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      containers:
+        - name: openvas
+          image: {{ include "greenbone.image" (dict "repository" .Values.openvas.image.repository "tag" .Values.openvas.image.tag "Chart" .Chart "Values" .Values) }}
+          command: {{ .Values.openvas.command }}
+          volumeMounts:
+            {{- range .Values.openvas.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.openvas.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+        {{- end }}
+{{- end }}
