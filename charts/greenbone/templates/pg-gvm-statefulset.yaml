@@ -32,6 +32,6 @@ spec:
         {{- range .Values.pgGvm.volumes }}
         - name: {{ .name }}
           persistentVolumeClaim:
-            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}vol
         {{- end }}
 {{- end }}

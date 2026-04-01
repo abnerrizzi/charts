@@ -36,6 +36,6 @@ spec:
         {{- range .Values.gsad.volumes }}
         - name: {{ .name }}
           persistentVolumeClaim:
-            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}Vol
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}vol
         {{- end }}
 {{- end }}
