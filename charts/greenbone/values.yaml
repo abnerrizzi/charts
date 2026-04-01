@@ -17,7 +17,7 @@ vulnerabilityTests:
     FEED_RELEASE: "24.10"
     KEEP_ALIVE: 1
   volumes:
-    - name: vtData
+    - name: vt-data
       mountPath: /mnt
 
 # Notus Data
@@ -29,7 +29,7 @@ notusData:
   env:
     KEEP_ALIVE: 1
   volumes:
-    - name: notusData
+    - name: notus-data
       mountPath: /mnt
 
 # SCAP Data
@@ -41,7 +41,7 @@ scapData:
   env:
     KEEP_ALIVE: 1
   volumes:
-    - name: scapData
+    - name: scap-data
       mountPath: /mnt
 
 # CERT Bund Data
@@ -53,7 +53,7 @@ certBundData:
   env:
     KEEP_ALIVE: 1
   volumes:
-    - name: certData
+    - name: cert-data
       mountPath: /mnt
 
 # DFN CERT Data
@@ -65,7 +65,7 @@ dfnCertData:
   env:
     KEEP_ALIVE: 1
   volumes:
-    - name: certData
+    - name: cert-data
       mountPath: /mnt
 
 # Data Objects
@@ -78,7 +78,7 @@ dataObjects:
     FEED_RELEASE: "24.10"
     KEEP_ALIVE: 1
   volumes:
-    - name: dataObjects
+    - name: data-objects
       mountPath: /mnt
 
 # Report Formats
@@ -91,7 +91,7 @@ reportFormats:
     FEED_RELEASE: "24.10"
     KEEP_ALIVE: 1
   volumes:
-    - name: dataObjects
+    - name: data-objects
       mountPath: /mnt
 
 # GPG Data
@@ -101,7 +101,7 @@ gpgData:
     repository: gpg-data
     tag: ""
   volumes:
-    - name: gpgData
+    - name: gpg-data
       mountPath: /mnt
 
 # Redis Server
@@ -121,9 +121,9 @@ pgGvm:
     repository: pg-gvm
     tag: stable
   volumes:
-    - name: psqlData
+    - name: psql-data
       mountPath: /var/lib/postgresql
-    - name: psqlSocket
+    - name: psql-socket
       mountPath: /var/run/postgresql
 
 # PG GVM Migrator
@@ -133,9 +133,9 @@ pgGvmMigrator:
     repository: pg-gvm-migrator
     tag: stable
   volumes:
-    - name: psqlData
+    - name: psql-data
       mountPath: /var/lib/postgresql
-    - name: psqlSocket
+    - name: psql-socket
       mountPath: /var/run/postgresql
 
 # GVMD
@@ -145,23 +145,23 @@ gvmd:
     repository: gvmd
     tag: stable
   volumes:
-    - name: gvmdData
+    - name: gvmd-data
       mountPath: /var/lib/gvm
-    - name: scapData
+    - name: scap-data
       mountPath: /var/lib/gvm/scap-data/
-    - name: certData
+    - name: cert-data
       mountPath: /var/lib/gvm/cert-data
-    - name: dataObjects
+    - name: data-objects
       mountPath: /var/lib/gvm/data-objects/gvmd
-    - name: vtData
+    - name: vt-data
       mountPath: /var/lib/openvas/plugins
-    - name: psqlData
+    - name: psql-data
       mountPath: /var/lib/postgresql
-    - name: gvmdSocket
+    - name: gvmd-socket
       mountPath: /run/gvmd
-    - name: ospdOpenvasSocket
+    - name: ospd-openvas-socket
       mountPath: /run/ospd
-    - name: psqlSocket
+    - name: psql-socket
       mountPath: /var/run/postgresql
 
 # GSA
@@ -174,7 +174,7 @@ gsa:
     MOUNT_PATH: "/mnt/web"
     KEEP_ALIVE: 1
   volumes:
-    - name: gsaData
+    - name: gsa-data
       mountPath: /mnt/web
 
 # GSAD
@@ -186,7 +186,7 @@ gsad:
   env:
     GSAD_ARGS: "--listen=0.0.0.0 --http-only --api-only -f"
   volumes:
-    - name: gvmdSocket
+    - name: gvmd-socket
       mountPath: /run/gvmd
 
 # GVM Config
@@ -218,11 +218,11 @@ nginx:
       containerPort: 9392
       hostPort: 9392
   volumes:
-    - name: nginxConfig
+    - name: nginx-config
       mountPath: /etc/nginx/conf.d:ro
-    - name: nginxCertificates
+    - name: nginx-certificates
       mountPath: /etc/nginx/certs:ro
-    - name: gsaData
+    - name: gsa-data
       mountPath: /usr/share/nginx/html:ro
 
 # Configure OpenVAS
@@ -232,9 +232,9 @@ configureOpenvas:
     repository: openvas-scanner
     tag: stable
   volumes:
-    - name: openvasData
+    - name: openvas-data
       mountPath: /mnt
-    - name: openvasLogData
+    - name: openvas-log-data
       mountPath: /var/log/openvas
   command:
     - /bin/sh
@@ -254,9 +254,9 @@ openvas:
     repository: openvas-scanner
     tag: stable
   volumes:
-    - name: openvasData
+    - name: openvas-data
       mountPath: /etc/openvas
-    - name: openvasLogData
+    - name: openvas-log-data
       mountPath: /var/log/openvas
   command:
     - /bin/sh
@@ -276,13 +276,13 @@ openvasd:
     GNUPGHOME: /etc/openvas/gnupg
     LISTENING: 0.0.0.0:80
   volumes:
-    - name: openvasData
+    - name: openvas-data
       mountPath: /etc/openvas
-    - name: openvasLogData
+    - name: openvas-log-data
       mountPath: /var/log/openvas
-    - name: gpgData
+    - name: gpg-data
       mountPath: /etc/openvas/gnupg
-    - name: notusData
+    - name: notus-data
       mountPath: /var/lib/notus
 
 # OSPD OpenVAS
@@ -303,19 +303,19 @@ ospdOpenvas:
       "666",
     ]
   volumes:
-    - name: gpgData
+    - name: gpg-data
       mountPath: /etc/openvas/gnupg
-    - name: vtData
+    - name: vt-data
       mountPath: /var/lib/openvas/plugins
-    - name: notusData
+    - name: notus-data
       mountPath: /var/lib/notus
-    - name: ospdOpenvasSocket
+    - name: ospd-openvas-socket
       mountPath: /run/ospd
-    - name: redisSocket
+    - name: redis-socket
       mountPath: /run/redis/
-    - name: openvasData
+    - name: openvas-data
       mountPath: /etc/openvas/
-    - name: openvasLogData
+    - name: openvas-log-data
       mountPath: /var/log/openvas
 
 # Volumes
