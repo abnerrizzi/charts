@@ -133,9 +133,9 @@ pgGvmMigrator:
     repository: pg-gvm-migrator
     tag: stable
   volumes:
-    - name: psql-data
+    - name: psqlData
       mountPath: /var/lib/postgresql
-    - name: psql-socket
+    - name: psqlSocket
       mountPath: /var/run/postgresql
 
 # GVMD
