@@ -1,15 +1,9 @@
 Greenbone Community Edition has been installed.
 
 To access the web interface, port-forward the nginx service:
-
 kubectl port-forward svc/{{ include "greenbone.fullname" . }}-nginx 443:443 9392:9392
 
 Then access https://localhost for GSA and https://localhost:9392 for GSAD API.
 
-Note: This is a minimal installation. For full functionality, ensure all data services are running and feeds are updated.
-
 For troubleshooting, check the logs of the pods:
-
 kubectl logs -f deployment/{{ include "greenbone.fullname" . }}-gvmd
-
-etc.
