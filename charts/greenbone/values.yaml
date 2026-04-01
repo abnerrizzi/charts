@@ -91,7 +91,7 @@ reportFormats:
     FEED_RELEASE: "24.10"
     KEEP_ALIVE: 1
   volumes:
-    - name: data-objects
+    - name: dataObjects
       mountPath: /mnt
 
 # GPG Data
@@ -101,7 +101,7 @@ gpgData:
     repository: gpg-data
     tag: ""
   volumes:
-    - name: gpg-data
+    - name: gpgData
       mountPath: /mnt
 
 # Redis Server
