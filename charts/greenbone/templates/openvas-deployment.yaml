@@ -22,7 +22,8 @@ spec:
       containers:
         - name: openvas
           image: {{ include "greenbone.image" (dict "repository" .Values.openvas.image.repository "tag" .Values.openvas.image.tag "Chart" .Chart "Values" .Values) }}
-          command: {{ .Values.openvas.command }}
+          command:
+            {{- toYaml .Values.openvas.command | nindent 12 }}
           volumeMounts:
             {{- range .Values.openvas.volumes }}
             - name: {{ .name }}

@@ -18,11 +18,15 @@ spec:
         {{- include "greenbone.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: ospd-openvas
     spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 1001
       serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
       containers:
         - name: ospd-openvas
           image: {{ include "greenbone.image" (dict "repository" .Values.ospdOpenvas.image.repository "tag" .Values.ospdOpenvas.image.tag "Chart" .Chart "Values" .Values) }}
-          command: {{ .Values.ospdOpenvas.command }}
+          args:
+            {{- toYaml .Values.ospdOpenvas.command | nindent 12 }}
           volumeMounts:
             {{- range .Values.ospdOpenvas.volumes }}
             - name: {{ .name }}

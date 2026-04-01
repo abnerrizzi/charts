@@ -323,54 +323,71 @@ volumes:
   gpg-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   scap-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   cert-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   data-objects:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   gvmd-data:
     enabled: true
     size: 10Gi
+    accessMode: ReadWriteMany
   psql-data:
     enabled: true
     size: 10Gi
+    accessMode: ReadWriteMany
   vt-data:
     enabled: true
     size: 10Gi
+    accessMode: ReadWriteMany
   notus-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   psql-socket:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   gvmd-socket:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   ospd-openvas-socket:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   redis-socket:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   openvas-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   openvas-log-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   gsa-data:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   nginx-config:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
   nginx-certificates:
     enabled: true
     size: 1Gi
+    accessMode: ReadWriteMany
 
 # Service Account
 serviceAccount:

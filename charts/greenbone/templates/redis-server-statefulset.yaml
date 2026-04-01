@@ -19,6 +19,8 @@ spec:
         {{- include "greenbone.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: redis-server
     spec:
+      securityContext:
+        fsGroup: 999
       serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
       containers:
         - name: redis-server
