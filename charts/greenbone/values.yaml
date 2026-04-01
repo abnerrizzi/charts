@@ -17,7 +17,7 @@ vulnerabilityTests:
     FEED_RELEASE: "24.10"
     KEEP_ALIVE: 1
   volumes:
-    - name: vt-data
+    - name: vtData
       mountPath: /mnt
 
 # Notus Data
