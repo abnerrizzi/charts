@@ -50,7 +50,7 @@ spec:
           command:
             - sh
             - -c
-            - 'until kubectl wait --for=condition=complete job -l app.kubernetes.io/component=vulnerability-tests --timeout=60s; do echo "Waiting for job to complete..."; sleep 5; done'
+            - 'until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-vulnerability-tests-{{ .Release.Revision }} --timeout=60s; do echo "Waiting for job to complete..."; sleep 5; done'
         - name: wait-for-notus-data
           image: bitnami/kubectl:latest
           command:

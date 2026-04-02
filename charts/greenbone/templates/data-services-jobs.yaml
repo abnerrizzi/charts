@@ -4,14 +4,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "greenbone.fullname" $ }}-{{ $job.name }}
+  name: {{ include "greenbone.fullname" $ }}-{{ $job.name }}-{{ $.Release.Revision }}
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "greenbone.labels" $ | nindent 4 }}
-  annotations:
-    "helm.sh/hook": "pre-install,pre-upgrade"
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
-    "helm.sh/hook-weight": {{ $job.weight | quote }}
+  annotations: {}
 spec:
   template:
     metadata:

@@ -30,19 +30,19 @@ spec:
               mountPath: /var/run/postgresql
         - name: wait-for-data-objects
           image: bitnami/kubectl:latest
-          command: ["sh", "-c", "until kubectl wait --for=condition=complete job -l app.kubernetes.io/component=data-objects --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
+          command: ["sh", "-c", "until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-data-objects-{{ .Release.Revision }} --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
         - name: wait-for-scap-data
           image: bitnami/kubectl:latest
-          command: ["sh", "-c", "until kubectl wait --for=condition=complete job -l app.kubernetes.io/component=scap-data --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
+          command: ["sh", "-c", "until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-scap-data-{{ .Release.Revision }} --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
         - name: wait-for-cert-bund-data
           image: bitnami/kubectl:latest
-          command: ["sh", "-c", "until kubectl wait --for=condition=complete job -l app.kubernetes.io/component=cert-bund-data --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
+          command: ["sh", "-c", "until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-cert-bund-data-{{ .Release.Revision }} --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
         - name: wait-for-dfn-cert-data
           image: bitnami/kubectl:latest
-          command: ["sh", "-c", "until kubectl wait --for=condition=complete job -l app.kubernetes.io/component=dfn-cert-data --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
+          command: ["sh", "-c", "until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-dfn-cert-data-{{ .Release.Revision }} --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
         - name: wait-for-report-formats
           image: bitnami/kubectl:latest
-          command: ["sh", "-c", "until kubectl wait --for=condition=complete job -l app.kubernetes.io/component=report-formats --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
+          command: ["sh", "-c", "until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-report-formats-{{ .Release.Revision }} --timeout=60s; do echo 'Waiting for job...'; sleep 5; done"]
       containers:
         - name: gvmd
           image: {{ include "greenbone.image" (dict "repository" .Values.gvmd.image.repository "tag" .Values.gvmd.image.tag "Chart" .Chart "Values" .Values) }}
