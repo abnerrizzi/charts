@@ -63,7 +63,7 @@ dataJobs:
     volumes:
       - name: data-objects
         mountPath: /mnt
-    weight: 20 # Depends on data-objects
+    weight: 10 # Depends on data-objects
   - name: dfn-cert-data
     image:
       repository: dfn-cert-data
@@ -73,7 +73,7 @@ dataJobs:
     volumes:
       - name: cert-data
         mountPath: /mnt
-    weight: 20 # Depends on cert-bund-data
+    weight: 10 # Depends on cert-bund-data
   - name: configure-openvas
     image:
       repository: openvas-scanner
@@ -93,7 +93,7 @@ dataJobs:
         chmod 644 /mnt/openvas_log.conf
         touch /var/log/openvas/openvas.log
         chmod 666 /var/log/openvas/openvas.log
-    weight: 30
+    weight: 10
 
 # Vulnerability Tests (Managed via dataJobs)
 vulnerabilityTests:
