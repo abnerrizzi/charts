@@ -2,23 +2,102 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Global configurations
 global:
   imageRegistry: registry.community.greenbone.net/community
   storageClass: longhorn
   feedRelease: "24.10"
 
-# Vulnerability Tests
+# Jobs for data services preserving Docker Compose dependencies
+# Each job runs once to initialize data; hook weight ensures order.
+dataJobs:
+  - name: data-objects
+    image:
+      repository: data-objects
+      tag: ""
+    env:
+      FEED_RELEASE: "24.10"
+      KEEP_ALIVE: "1"
+    volumes:
+      - name: data-objects
+        mountPath: /mnt
+    weight: 10
+  - name: scap-data
+    image:
+      repository: scap-data
+      tag: ""
+    env:
+      KEEP_ALIVE: "1"
+    volumes:
+      - name: scap-data
+        mountPath: /mnt
+    weight: 10
+  - name: cert-bund-data
+    image:
+      repository: cert-bund-data
+      tag: ""
+    env:
+      KEEP_ALIVE: "1"
+    volumes:
+      - name: cert-data
+        mountPath: /mnt
+    weight: 10
+  - name: vulnerability-tests
+    image:
+      repository: vulnerability-tests
+      tag: ""
+    env:
+      FEED_RELEASE: "24.10"
+      KEEP_ALIVE: "1"
+    volumes:
+      - name: vt-data
+        mountPath: /mnt
+    weight: 10
+  - name: report-formats
+    image:
+      repository: report-formats
+      tag: ""
+    env:
+      FEED_RELEASE: "24.10"
+      KEEP_ALIVE: "1"
+    volumes:
+      - name: data-objects
+        mountPath: /mnt
+    weight: 20 # Depends on data-objects
+  - name: dfn-cert-data
+    image:
+      repository: dfn-cert-data
+      tag: ""
+    env:
+      KEEP_ALIVE: "1"
+    volumes:
+      - name: cert-data
+        mountPath: /mnt
+    weight: 20 # Depends on cert-bund-data
+  - name: configure-openvas
+    image:
+      repository: openvas-scanner
+      tag: "stable"
+    volumes:
+      - name: openvas-data
+        mountPath: /mnt
+      - name: openvas-log-data
+        mountPath: /var/log/openvas
+    command:
+      - /bin/sh
+      - -c
+      - |
+        printf "table_driven_lsc = yes\nopenvasd_server = http://openvasd:80\n" > /mnt/openvas.conf
+        sed "s/127/128/" /etc/openvas/openvas_log.conf | sed 's/gvm/openvas/' > /mnt/openvas_log.conf
+        chmod 644 /mnt/openvas.conf
+        chmod 644 /mnt/openvas_log.conf
+        touch /var/log/openvas/openvas.log
+        chmod 666 /var/log/openvas/openvas.log
+    weight: 30
+
+# Vulnerability Tests (Managed via dataJobs)
 vulnerabilityTests:
-  enabled: true
-  image:
-    repository: vulnerability-tests
-    tag: ""
-  env:
-    FEED_RELEASE: "24.10"
-    KEEP_ALIVE: 1
-  volumes:
-    - name: vt-data
-      mountPath: /mnt
+  enabled: false
 
 # Notus Data
 notusData:
@@ -32,67 +111,31 @@ notusData:
     - name: notus-data
       mountPath: /mnt
 
-# SCAP Data
+# SCAP Data (Managed via dataJobs)
 scapData:
-  enabled: true
-  image:
-    repository: scap-data
-    tag: ""
-  env:
-    KEEP_ALIVE: 1
-  volumes:
-    - name: scap-data
-      mountPath: /mnt
+  enabled: false
 
-# CERT Bund Data
+# CERT Bund Data (Managed via dataJobs)
 certBundData:
-  enabled: true
-  image:
-    repository: cert-bund-data
-    tag: ""
-  env:
-    KEEP_ALIVE: 1
-  volumes:
-    - name: cert-data
-      mountPath: /mnt
+  enabled: false
 
-# DFN CERT Data
+# DFN CERT Data (Managed via dataJobs)
 dfnCertData:
-  enabled: true
-  image:
-    repository: dfn-cert-data
-    tag: ""
-  env:
-    KEEP_ALIVE: 1
-  volumes:
-    - name: cert-data
-      mountPath: /mnt
+  enabled: false
 
-# Data Objects
+# Data Objects (Managed via dataJobs)
 dataObjects:
-  enabled: true
-  image:
-    repository: data-objects
-    tag: ""
-  env:
-    FEED_RELEASE: "24.10"
-    KEEP_ALIVE: 1
-  volumes:
-    - name: data-objects
-      mountPath: /mnt
+  enabled: false
 
-# Report Formats
+# Report Formats (Managed via dataJobs)
 reportFormats:
-  enabled: true
-  image:
-    repository: report-formats
-    tag: ""
-  env:
-    FEED_RELEASE: "24.10"
-    KEEP_ALIVE: 1
-  volumes:
-    - name: data-objects
-      mountPath: /mnt
+  enabled: false
+
+# Configure OpenVAS (Managed via dataJobs)
+configureOpenvas:
+  enabled: false
+
+
 
 # GPG Data
 gpgData:
@@ -100,9 +143,12 @@ gpgData:
   image:
     repository: gpg-data
     tag: ""
+  env:
+    KEEP_ALIVE: 1
   volumes:
     - name: gpg-data
       mountPath: /mnt
+
 
 # Redis Server
 redisServer:
@@ -326,7 +372,7 @@ volumes:
     accessMode: ReadWriteMany
   scap-data:
     enabled: true
-    size: 1Gi
+    size: 15Gi
     accessMode: ReadWriteMany
   cert-data:
     enabled: true
@@ -411,3 +457,20 @@ tolerations: []
 
 # Affinity
 affinity: {}
+
+# Ingress
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: greenbone.k3m.tiradentes.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+   - secretName: chart-example-tls
+     hosts:
+       - greenbone.k3m.tiradentes.local

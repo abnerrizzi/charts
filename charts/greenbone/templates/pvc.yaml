@@ -10,7 +10,7 @@ metadata:
     {{- include "greenbone.labels" $ | nindent 4 }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: {{ $.Values.global.storageClass }}
   resources:
     requests:

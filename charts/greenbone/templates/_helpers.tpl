@@ -65,13 +65,16 @@ Create the name of the service account to use
 Return the proper image name
 */}}
 {{- define "greenbone.image" -}}
+{{- $repository := .repository -}}
+{{- $tag := "" -}}
 {{- if hasKey . "tag" -}}
-  {{- if ne .tag "" -}}
-    {{- printf "%s/%s:%s" .Values.global.imageRegistry .repository .tag }}
-  {{- else -}}
-    {{- printf "%s/%s" .Values.global.imageRegistry .repository }}
-  {{- end -}}
+  {{- $tag = .tag | toString -}}
 {{- else -}}
-  {{- printf "%s/%s:%s" .Values.global.imageRegistry .repository .Chart.AppVersion }}
+  {{- $tag = .Chart.AppVersion -}}
+{{- end -}}
+{{- if and $tag (ne $tag "<nil>") -}}
+  {{- printf "%s/%s:%s" .Values.global.imageRegistry $repository $tag -}}
+{{- else -}}
+  {{- printf "%s/%s" .Values.global.imageRegistry $repository -}}
 {{- end -}}
 {{- end }}

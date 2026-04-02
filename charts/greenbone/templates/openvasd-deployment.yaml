@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   replicas: 1
   selector:
@@ -19,6 +21,13 @@ spec:
         app.kubernetes.io/component: openvasd
     spec:
       serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      initContainers:
+        - name: wait-for-openvas-config
+          image: busybox:1.36
+          command: ['sh', '-c', 'echo "Waiting for openvas config..."; until [ -f /etc/openvas/openvas.conf ]; do echo "Waiting..."; sleep 5; done; echo "Config ready."']
+          volumeMounts:
+            - name: openvas-data
+              mountPath: /etc/openvas
       containers:
         - name: openvasd
           image: {{ include "greenbone.image" (dict "repository" .Values.openvasd.image.repository "tag" .Values.openvasd.image.tag "Chart" .Chart "Values" .Values) }}

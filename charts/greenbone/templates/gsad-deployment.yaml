@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   replicas: 1
   selector:
@@ -19,6 +21,13 @@ spec:
         app.kubernetes.io/component: gsad
     spec:
       serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      initContainers:
+        - name: wait-for-gvmd
+          image: busybox:1.36
+          command: ['sh', '-c', 'echo "Waiting for gvmd socket..."; until [ -e /run/gvmd/gvmd.sock ]; do echo "Waiting..."; sleep 5; done; echo "gvmd ready."']
+          volumeMounts:
+            - name: gvmd-socket
+              mountPath: /run/gvmd
       containers:
         - name: gsad
           image: {{ include "greenbone.image" (dict "repository" .Values.gsad.image.repository "tag" .Values.gsad.image.tag "Chart" .Chart "Values" .Values) }}
