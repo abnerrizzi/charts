@@ -45,4 +45,15 @@ entries:
     urls:
     - https://github.com/abnerrizzi/charts/releases/download/dozzle-0.1.0/dozzle-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-23T20:33:16.949846519Z"
+  greenbone:
+  - apiVersion: v2
+    appVersion: "24.10"
+    created: "2026-04-02T14:00:12.060731664Z"
+    description: A Helm chart for Greenbone Community Edition
+    digest: c8556227ee13861f39714a478c3d9a77341e2108e18f70afaef3ea9107346c90
+    name: greenbone
+    type: application
+    urls:
+    - https://github.com/abnerrizzi/charts/releases/download/greenbone-0.1.0/greenbone-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-04-02T14:00:12.06074572Z"
