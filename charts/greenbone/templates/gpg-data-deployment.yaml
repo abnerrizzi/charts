@@ -1,39 +1,42 @@
-{{- if .Values.vulnerabilityTests.enabled }}
+{{- if .Values.gpgData.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "greenbone.fullname" . }}-vulnerability-tests
+  name: {{ include "greenbone.fullname" . }}-gpg-data
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   replicas: 1
   selector:
     matchLabels:
       {{- include "greenbone.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: vulnerability-tests
+      app.kubernetes.io/component: gpg-data
   template:
     metadata:
       labels:
         {{- include "greenbone.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: vulnerability-tests
+        app.kubernetes.io/component: gpg-data
     spec:
       serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
       containers:
-        - name: vulnerability-tests
-          image: {{ include "greenbone.image" (dict "repository" .Values.vulnerabilityTests.image.repository "tag" .Values.vulnerabilityTests.image.tag "Chart" .Chart "Values" .Values) }}
+        - name: gpg-data
+          image: {{ include "greenbone.image" (dict "repository" .Values.gpgData.image.repository "tag" .Values.gpgData.image.tag "Chart" .Chart "Values" .Values) }}
+          command: ["/bin/sh","-c","echo 'gpg-data started'; sleep 3600"]
           env:
-            {{- range $key, $value := .Values.vulnerabilityTests.env }}
+            {{- range $key, $value := .Values.gpgData.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
-            {{- range .Values.vulnerabilityTests.volumes }}
+            {{- range .Values.gpgData.volumes }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
             {{- end }}
       volumes:
-        {{- range .Values.vulnerabilityTests.volumes }}
+        {{- range .Values.gpgData.volumes }}
         - name: {{ .name }}
           persistentVolumeClaim:
             claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}vol

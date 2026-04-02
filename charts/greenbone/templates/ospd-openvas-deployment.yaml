@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   replicas: 1
   selector:
@@ -17,14 +19,54 @@ spec:
       labels:
         {{- include "greenbone.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: ospd-openvas
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/ospd-openvas: unconfined
     spec:
       securityContext:
         runAsUser: 0
         fsGroup: 1001
       serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      initContainers:
+        - name: wait-for-redis
+          image: busybox:1.36
+          command: ['sh', '-c', 'echo "Waiting for Redis socket..."; until [ -e /run/redis/redis.sock ]; do echo "Waiting..."; sleep 5; done; echo "Redis ready."']
+          volumeMounts:
+            - name: redis-socket
+              mountPath: /run/redis/
+        - name: wait-for-openvas-config
+          image: busybox:1.36
+          command: ['sh', '-c', 'echo "Waiting for openvas config..."; until [ -f /etc/openvas/openvas.conf ]; do echo "Waiting..."; sleep 5; done; echo "Config ready."']
+          volumeMounts:
+            - name: openvas-data
+              mountPath: /etc/openvas/
+        - name: wait-for-gpg-data
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - 'until kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=gpg-data --timeout=60s; do echo "Waiting for pod to be ready..."; sleep 5; done'
+        - name: wait-for-vulnerability-tests
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - 'until kubectl wait --for=condition=complete job/{{ include "greenbone.fullname" . }}-vulnerability-tests-{{ .Release.Revision }} --timeout=60s; do echo "Waiting for job to complete..."; sleep 5; done'
+        - name: wait-for-notus-data
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - 'until kubectl wait --for=condition=ready pod -l app.kubernetes.io/component=notus-data --timeout=60s; do echo "Waiting for pod to be ready..."; sleep 5; done'
       containers:
         - name: ospd-openvas
           image: {{ include "greenbone.image" (dict "repository" .Values.ospdOpenvas.image.repository "tag" .Values.ospdOpenvas.image.tag "Chart" .Chart "Values" .Values) }}
+          securityContext:
+            seccompProfile:
+              type: Unconfined
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
           args:
             {{- toYaml .Values.ospdOpenvas.command | nindent 12 }}
           volumeMounts:
