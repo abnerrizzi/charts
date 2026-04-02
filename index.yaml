@@ -48,6 +48,16 @@ entries:
   greenbone:
   - apiVersion: v2
     appVersion: "24.10"
+    created: "2026-04-02T15:16:30.394698333Z"
+    description: A Helm chart for Greenbone Community Edition
+    digest: 597f1a990e9ad35ffd20af1a0923853f574905f082d8738e3e569b1aeece3fa6
+    name: greenbone
+    type: application
+    urls:
+    - https://github.com/abnerrizzi/charts/releases/download/greenbone-0.1.1/greenbone-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "24.10"
     created: "2026-04-02T14:00:12.060731664Z"
     description: A Helm chart for Greenbone Community Edition
     digest: c8556227ee13861f39714a478c3d9a77341e2108e18f70afaef3ea9107346c90
@@ -56,4 +66,4 @@ entries:
     urls:
     - https://github.com/abnerrizzi/charts/releases/download/greenbone-0.1.0/greenbone-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-02T14:00:12.06074572Z"
+generated: "2026-04-02T15:16:30.394712439Z"
