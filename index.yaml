@@ -2,6 +2,17 @@ apiVersion: v1
 entries:
   dozzle:
   - apiVersion: v2
+    appVersion: v10.6.6
+    created: "2026-06-24T17:56:49.890099361Z"
+    description: A Helm chart for Dozzle, a lightweight real-time log viewer for containers.
+    digest: feb992e533a86a802f3b2f22913eb16456ad5798aed1466addd81f91bda75de4
+    icon: https://dozzle.dev/logo.svg
+    name: dozzle
+    type: application
+    urls:
+    - https://github.com/abnerrizzi/charts/releases/download/dozzle-10.6.6/dozzle-10.6.6.tgz
+    version: 10.6.6
+  - apiVersion: v2
     appVersion: v8.18.2
     created: "2026-06-24T17:54:44.94279746Z"
     description: A Helm chart for Dozzle, a lightweight real-time log viewer for containers.
@@ -88,4 +99,4 @@ entries:
     urls:
     - https://github.com/abnerrizzi/charts/releases/download/greenbone-0.1.0/greenbone-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-24T17:55:50.735215872Z"
+generated: "2026-06-24T17:56:49.890155746Z"
