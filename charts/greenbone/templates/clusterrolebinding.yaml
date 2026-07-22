@@ -1,0 +1,18 @@
+{{- if and .Values.rbac.create .Values.rbac.clusterScoped }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "greenbone.fullname" . }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "greenbone.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "greenbone.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

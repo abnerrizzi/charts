@@ -1,0 +1,51 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greenbone.fullname" . }}-nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: nginx
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: nginx
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      initContainers:
+        - name: wait-for-nginx-config
+          image: busybox:1.36
+          command: ['sh', '-c', 'echo "Waiting for nginx config..."; until [ "$(ls -A /etc/nginx/conf.d/ 2>/dev/null)" ]; do echo "Waiting..."; sleep 5; done; echo "Nginx config ready."']
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+      containers:
+        - name: nginx
+          image: {{ include "greenbone.image" (dict "repository" .Values.nginx.image.repository "tag" .Values.nginx.image.tag "Chart" .Chart "Values" .Values) }}
+          ports:
+            {{- range .Values.nginx.ports }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort }}
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            {{- range .Values.nginx.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.nginx.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}vol
+        {{- end }}
+{{- end }}

@@ -1,0 +1,21 @@
+{{- range $name, $config := .Values.volumes }}
+{{- if $config.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "greenbone.fullname" $ }}-{{ $name | lower }}vol
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" $ | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ $.Values.global.storageClass }}
+  resources:
+    requests:
+      storage: {{ $config.size }}
+{{- end }}
+{{- end }}

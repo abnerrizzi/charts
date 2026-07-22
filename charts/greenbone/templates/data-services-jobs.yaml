@@ -1,0 +1,47 @@
+{{- $jobs := .Values.dataJobs -}}
+{{- range $job := $jobs }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "greenbone.fullname" $ }}-{{ $job.name }}-{{ $.Release.Revision }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" $ | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $job.name }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: {{ $job.name }}
+          image: {{ include "greenbone.image" (dict "repository" $job.image.repository "tag" $job.image.tag "Chart" $.Chart "Values" $.Values) }}
+{{- if $job.command }}
+          command:
+            {{- toYaml $job.command | nindent 12 }}
+{{- end }}
+          env:
+{{- with $job.env }}
+{{- range $key, $value := . }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+{{- end }}
+{{- end }}
+          volumeMounts:
+{{- range $vol := $job.volumes }}
+            - name: {{ $vol.name }}
+              mountPath: {{ $vol.mountPath }}
+{{- end }}
+      volumes:
+{{- range $vol := $job.volumes }}
+        - name: {{ $vol.name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ $vol.name | lower }}vol
+{{- end }}
+{{- end }}
+

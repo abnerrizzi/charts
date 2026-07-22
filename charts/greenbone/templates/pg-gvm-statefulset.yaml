@@ -1,0 +1,67 @@
+{{- if .Values.pgGvm.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "greenbone.fullname" . }}-pg-gvm
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "greenbone.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  serviceName: {{ include "greenbone.fullname" . }}-pg-gvm
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "greenbone.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: pg-gvm
+  template:
+    metadata:
+      labels:
+        {{- include "greenbone.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: pg-gvm
+    spec:
+      serviceAccountName: {{ include "greenbone.serviceAccountName" . }}
+      {{- if .Values.pgGvmMigrator.enabled }}
+      initContainers:
+        - name: pg-gvm-data-copy
+          image: {{ include "greenbone.image" (dict "repository" .Values.pgGvmMigrator.image.repository "tag" .Values.pgGvmMigrator.image.tag "Chart" .Chart "Values" .Values) }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Copying /var/lib/postgresql to PVC..."
+              cp -a /var/lib/postgresql/* /mnt/pgdata/ || true
+              echo "Copy complete."
+          volumeMounts:
+            - name: psql-data
+              mountPath: /mnt/pgdata
+        - name: pg-gvm-migrator
+          image: {{ include "greenbone.image" (dict "repository" .Values.pgGvmMigrator.image.repository "tag" .Values.pgGvmMigrator.image.tag "Chart" .Chart "Values" .Values) }}
+          # env:
+          #   - name: PGDATA
+          #     value: /var/lib/postgresql/data
+          volumeMounts:
+            {{- range .Values.pgGvmMigrator.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      {{- end }}
+      containers:
+        - name: pg-gvm
+          image: {{ include "greenbone.image" (dict "repository" .Values.pgGvm.image.repository "tag" .Values.pgGvm.image.tag "Chart" .Chart "Values" .Values) }}
+          args: ["start-postgresql"]
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data
+          volumeMounts:
+            {{- range .Values.pgGvm.volumes }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        {{- range .Values.pgGvm.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ include "greenbone.fullname" $ }}-{{ .name }}vol
+        {{- end }}
+{{- end }}

@@ -1,0 +1,476 @@
+# Default values for greenbone.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configurations
+global:
+  imageRegistry: registry.community.greenbone.net/community
+  storageClass: longhorn
+  feedRelease: "24.10"
+
+# Jobs for data services preserving Docker Compose dependencies
+# Each job runs once to initialize data; hook weight ensures order.
+dataJobs:
+  - name: data-objects
+    image:
+      repository: data-objects
+      # tag: ""
+    env:
+      FEED_RELEASE: "24.10"
+      # KEEP_ALIVE: "1"
+    volumes:
+      - name: data-objects
+        mountPath: /mnt
+    weight: 10
+  - name: scap-data
+    image:
+      repository: scap-data
+      tag: ""
+    env:
+      # KEEP_ALIVE: "1"
+    volumes:
+      - name: scap-data
+        mountPath: /mnt
+    weight: 10
+  - name: cert-bund-data
+    image:
+      repository: cert-bund-data
+    #   tag: ""
+    # env:
+    #   # KEEP_ALIVE: "1"
+    volumes:
+      - name: cert-data
+        mountPath: /mnt
+    weight: 10
+  - name: vulnerability-tests
+    image:
+      repository: vulnerability-tests
+      tag: ""
+    env:
+      FEED_RELEASE: "24.10"
+      # KEEP_ALIVE: "1"
+    volumes:
+      - name: vt-data
+        mountPath: /mnt
+    weight: 10
+  - name: report-formats
+    image:
+      repository: report-formats
+      tag: ""
+    env:
+      FEED_RELEASE: "24.10"
+      # KEEP_ALIVE: "1"
+    volumes:
+      - name: data-objects
+        mountPath: /mnt
+    weight: 10 # Depends on data-objects
+  - name: dfn-cert-data
+    image:
+      repository: dfn-cert-data
+      tag: ""
+    env:
+      # KEEP_ALIVE: "1"
+    volumes:
+      - name: cert-data
+        mountPath: /mnt
+    weight: 10 # Depends on cert-bund-data
+  - name: configure-openvas
+    image:
+      repository: openvas-scanner
+      tag: "stable"
+    volumes:
+      - name: openvas-data
+        mountPath: /mnt
+      - name: openvas-log-data
+        mountPath: /var/log/openvas
+    command:
+      - /bin/sh
+      - -c
+      - |
+        printf "table_driven_lsc = yes\nopenvasd_server = http://openvasd:80\n" > /mnt/openvas.conf
+        sed "s/127/128/" /etc/openvas/openvas_log.conf | sed 's/gvm/openvas/' > /mnt/openvas_log.conf
+        chmod 644 /mnt/openvas.conf
+        chmod 644 /mnt/openvas_log.conf
+        touch /var/log/openvas/openvas.log
+        chmod 666 /var/log/openvas/openvas.log
+    weight: 10
+
+# Vulnerability Tests (Managed via dataJobs)
+vulnerabilityTests:
+  enabled: false
+
+# Notus Data
+notusData:
+  enabled: true
+  image:
+    repository: notus-data
+    tag: ""
+  env:
+    KEEP_ALIVE: 1
+  volumes:
+    - name: notus-data
+      mountPath: /mnt
+
+# SCAP Data (Managed via dataJobs)
+scapData:
+  enabled: false
+
+# CERT Bund Data (Managed via dataJobs)
+certBundData:
+  enabled: false
+
+# DFN CERT Data (Managed via dataJobs)
+dfnCertData:
+  enabled: false
+
+# Data Objects (Managed via dataJobs)
+dataObjects:
+  enabled: false
+
+# Report Formats (Managed via dataJobs)
+reportFormats:
+  enabled: false
+
+# Configure OpenVAS (Managed via dataJobs)
+configureOpenvas:
+  enabled: false
+
+
+
+# GPG Data
+gpgData:
+  enabled: true
+  image:
+    repository: gpg-data
+    tag: ""
+  env:
+    KEEP_ALIVE: 1
+  volumes:
+    - name: gpg-data
+      mountPath: /mnt
+
+
+# Redis Server
+redisServer:
+  enabled: true
+  image:
+    repository: redis-server
+    tag: ""
+  volumes:
+    - name: redis-socket
+      mountPath: /run/redis/
+
+# PG GVM
+pgGvm:
+  enabled: true
+  image:
+    repository: pg-gvm
+    tag: stable
+  volumes:
+    - name: psql-data
+      mountPath: /var/lib/postgresql
+    - name: psql-socket
+      mountPath: /var/run/postgresql
+
+# PG GVM Migrator
+pgGvmMigrator:
+  enabled: true
+  image:
+    repository: pg-gvm-migrator
+    tag: stable
+  volumes:
+    - name: psql-data
+      mountPath: /var/lib/postgresql
+    - name: psql-socket
+      mountPath: /var/run/postgresql
+
+# GVMD
+gvmd:
+  enabled: true
+  image:
+    repository: gvmd
+    tag: stable
+  volumes:
+    - name: gvmd-data
+      mountPath: /var/lib/gvm
+    - name: scap-data
+      mountPath: /var/lib/gvm/scap-data/
+    - name: cert-data
+      mountPath: /var/lib/gvm/cert-data
+    - name: data-objects
+      mountPath: /var/lib/gvm/data-objects/gvmd
+    - name: vt-data
+      mountPath: /var/lib/openvas/plugins
+    - name: psql-data
+      mountPath: /var/lib/postgresql
+    - name: gvmd-socket
+      mountPath: /run/gvmd
+    - name: ospd-openvas-socket
+      mountPath: /run/ospd
+    - name: psql-socket
+      mountPath: /var/run/postgresql
+
+# GSA
+gsa:
+  enabled: true
+  image:
+    repository: gsa
+    tag: stable-slim
+  env:
+    MOUNT_PATH: "/mnt/web"
+    KEEP_ALIVE: 1
+  volumes:
+    - name: gsa-data
+      mountPath: /mnt/web
+
+# GSAD
+gsad:
+  enabled: true
+  image:
+    repository: gsad
+    tag: stable
+  env:
+    GSAD_ARGS: "--listen=0.0.0.0 --http-only --api-only -f"
+  volumes:
+    - name: gvmd-socket
+      mountPath: /run/gvmd
+
+# GVM Config
+gvmConfig:
+  enabled: true
+  image:
+    repository: gvm-config
+    tag: latest
+  env:
+    ENABLE_NGINX_CONFIG: true
+    ENABLE_TLS_GENERATION: true
+  volumes:
+    - name: nginx-config
+      mountPath: /mnt/nginx/configs
+    - name: nginx-certificates
+      mountPath: /mnt/nginx/certs
+
+# Nginx
+nginx:
+  enabled: true
+  image:
+    repository: nginx
+    tag: latest
+  ports:
+    - name: https
+      containerPort: 443
+      hostPort: 443
+    - name: gvm
+      containerPort: 9392
+      hostPort: 9392
+  volumes:
+    - name: nginx-config
+      mountPath: /etc/nginx/conf.d:ro
+    - name: nginx-certificates
+      mountPath: /etc/nginx/certs:ro
+    - name: gsa-data
+      mountPath: /usr/share/nginx/html:ro
+
+# Configure OpenVAS
+configureOpenvas:
+  enabled: true
+  image:
+    repository: openvas-scanner
+    tag: stable
+  volumes:
+    - name: openvas-data
+      mountPath: /mnt
+    - name: openvas-log-data
+      mountPath: /var/log/openvas
+  command:
+    - /bin/sh
+    - -c
+    - |
+      printf "table_driven_lsc = yes\nopenvasd_server = http://openvasd:80\n" > /mnt/openvas.conf
+      sed "s/127/128/" /etc/openvas/openvas_log.conf | sed 's/gvm/openvas/' > /mnt/openvas_log.conf
+      chmod 644 /mnt/openvas.conf
+      chmod 644 /mnt/openvas_log.conf
+      touch /var/log/openvas/openvas.log
+      chmod 666 /var/log/openvas/openvas.log
+
+# OpenVAS
+openvas:
+  enabled: true
+  image:
+    repository: openvas-scanner
+    tag: stable
+  volumes:
+    - name: openvas-data
+      mountPath: /etc/openvas
+    - name: openvas-log-data
+      mountPath: /var/log/openvas
+  command:
+    - /bin/sh
+    - -c
+    - |
+      cat /etc/openvas/openvas.conf
+      tail -f /var/log/openvas/openvas.log
+
+# OpenVASd
+openvasd:
+  enabled: true
+  image:
+    repository: openvas-scanner
+    tag: stable
+  env:
+    OPENVASD_MODE: service_notus
+    GNUPGHOME: /etc/openvas/gnupg
+    LISTENING: 0.0.0.0:80
+  volumes:
+    - name: openvas-data
+      mountPath: /etc/openvas
+    - name: openvas-log-data
+      mountPath: /var/log/openvas
+    - name: gpg-data
+      mountPath: /etc/openvas/gnupg
+    - name: notus-data
+      mountPath: /var/lib/notus
+
+# OSPD OpenVAS
+ospdOpenvas:
+  enabled: true
+  image:
+    repository: ospd-openvas
+    tag: stable
+  command:
+    [
+      "ospd-openvas",
+      "-f",
+      "--config",
+      "/etc/gvm/ospd-openvas.conf",
+      "--notus-feed-dir",
+      "/var/lib/notus/advisories",
+      "-m",
+      "666",
+    ]
+  volumes:
+    - name: gpg-data
+      mountPath: /etc/openvas/gnupg
+    - name: vt-data
+      mountPath: /var/lib/openvas/plugins
+    - name: notus-data
+      mountPath: /var/lib/notus
+    - name: ospd-openvas-socket
+      mountPath: /run/ospd
+    - name: redis-socket
+      mountPath: /run/redis/
+    - name: openvas-data
+      mountPath: /etc/openvas/
+    - name: openvas-log-data
+      mountPath: /var/log/openvas
+
+# Volumes
+volumes:
+  gpg-data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  scap-data:
+    enabled: true
+    size: 15Gi
+    accessMode: ReadWriteMany
+  cert-data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  data-objects:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  gvmd-data:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteMany
+  psql-data:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteMany
+  vt-data:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteMany
+  notus-data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  psql-socket:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  gvmd-socket:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  ospd-openvas-socket:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  redis-socket:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  openvas-data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  openvas-log-data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  gsa-data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  nginx-config:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+  nginx-certificates:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# RBAC
+rbac:
+  create: true
+  clusterScoped: true
+
+# Resources
+resources: {}
+
+# Node Selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Ingress
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: greenbone.k3m.tiradentes.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+   - secretName: chart-example-tls
+     hosts:
+       - greenbone.k3m.tiradentes.local
